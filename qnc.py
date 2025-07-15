@@ -116,9 +116,26 @@ async def client_mode(host, port):
         await protocol.send_stdin()
 
 
+def print_usage():
+    print("Usage: ./qnc [-l] [<host>] <port>")
+    print("Options:")
+    print("  -l           Listen mode (server)")
+    print("  <host>       Host to connect/listen (default: 127.0.0.1 for server)")
+    print("  <port>       Port number")
+    print("  -h, --help   Show this help message")
+
+
 if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        print_usage()
+        sys.exit(1)
+
+    if sys.argv[1] in ("-h", "--help"):
+        print_usage()
+        sys.exit(0)
+
     if len(sys.argv) < 3:
-        print("Usage: qnc [-l] [<host>] <port>")
+        print_usage()
         sys.exit(1)
 
     if sys.argv[1] == "-l":
@@ -128,7 +145,7 @@ if __name__ == "__main__":
         elif len(sys.argv) == 3:
             host, port = "127.0.0.1", int(sys.argv[2])
         else:
-            print("Usage: qnc -l [<host>] <port>")
+            print_usage()
             sys.exit(1)
         asyncio.run(server_mode(host, port))
     else:
