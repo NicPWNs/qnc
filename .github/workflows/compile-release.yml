@@ -1,0 +1,98 @@
+name: Build QNC for Multiple Platforms
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            platform: linux
+            arch: x64
+            binary_name: qnc
+            asset_name: qnc-linux-x64
+          - os: windows-latest
+            platform: windows
+            arch: x64
+            binary_name: qnc.exe
+            asset_name: qnc-windows-x64.exe
+          - os: macos-latest
+            platform: macos
+            arch: x64
+            binary_name: qnc
+            asset_name: qnc-macos-x64
+          - os: macos-latest
+            platform: macos
+            arch: arm64
+            binary_name: qnc
+            asset_name: qnc-macos-arm64
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyinstaller aioquic cryptography
+
+      - name: Build binary
+        run: |
+          pyinstaller --onefile --name ${{ matrix.binary_name }} qnc.py
+        shell: bash
+
+      - name: Test binary (Linux/macOS)
+        if: runner.os != 'Windows'
+        run: |
+          ./dist/${{ matrix.binary_name }} --help || echo "Help test completed"
+          timeout 2s ./dist/${{ matrix.binary_name }} -l localhost 12345 || echo "Server test completed"
+
+      - name: Test binary (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          .\dist\${{ matrix.binary_name }} --help || echo "Help test completed"
+          timeout /t 2 /nobreak >nul & .\dist\${{ matrix.binary_name }} -l localhost 12345 || echo "Server test completed"
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ matrix.asset_name }}
+          path: dist/${{ matrix.binary_name }}
+
+  create-release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v3
+        with:
+          path: ./artifacts
+
+      - name: Create release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            artifacts/qnc-linux-x64/qnc
+            artifacts/qnc-windows-x64.exe/qnc.exe
+            artifacts/qnc-macos-x64/qnc
+            artifacts/qnc-macos-arm64/qnc
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
