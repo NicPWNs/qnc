@@ -113,6 +113,7 @@ async def client_mode(host, port):
     async with connect(
         host, port, configuration=config, create_protocol=SimpleQuicProtocol
     ) as protocol:
+        print(f"Connected to {host}:{port}")
         await protocol.send_stdin()
 
 
@@ -134,20 +135,26 @@ if __name__ == "__main__":
         print_usage()
         sys.exit(0)
 
-    if len(sys.argv) < 3:
-        print_usage()
-        sys.exit(1)
-
+    # Server mode
     if sys.argv[1] == "-l":
-        # Default host to 127.0.0.1 if not specified
+        # ./qnc -l [<host>] [<port>]
         if len(sys.argv) == 4:
             host, port = sys.argv[2], int(sys.argv[3])
         elif len(sys.argv) == 3:
             host, port = "127.0.0.1", int(sys.argv[2])
+        elif len(sys.argv) == 2:
+            host, port = "127.0.0.1", 443
         else:
             print_usage()
             sys.exit(1)
         asyncio.run(server_mode(host, port))
     else:
-        host, port = sys.argv[1], int(sys.argv[2])
+        # Client mode: ./qnc [<host>] [<port>]
+        if len(sys.argv) == 3:
+            host, port = sys.argv[1], int(sys.argv[2])
+        elif len(sys.argv) == 2:
+            host, port = sys.argv[1], 443
+        else:
+            print_usage()
+            sys.exit(1)
         asyncio.run(client_mode(host, port))
