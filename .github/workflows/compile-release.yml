@@ -62,16 +62,12 @@ jobs:
 
       - name: Test binary (Windows)
         if: runner.os == 'Windows'
+        shell: cmd
         run: |
-          .\dist\${{ matrix.binary_name }} --help || echo "Help test completed"
-          powershell -Command "
-            $job = Start-Job { .\dist\${{ matrix.binary_name }} -l localhost 12345 }
-            Start-Sleep -Seconds 2
-            Stop-Job $job
-            Receive-Job $job
-            Remove-Job $job
-            Write-Host 'Server test completed'
-          "
+          .\dist\${{ matrix.binary_name }} --help || echo Help test completed
+          start /b .\dist\${{ matrix.binary_name }} -l localhost 12345
+          ping 127.0.0.1 -n 3 > nul
+          taskkill /im ${{ matrix.binary_name }} /f || echo Server test completed
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
