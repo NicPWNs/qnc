@@ -72,11 +72,23 @@ jobs:
           ping 127.0.0.1 -n 3 > nul
           taskkill /im ${{ matrix.binary_name }} /f || echo Server test completed
 
+      - name: Rename binary for release
+        run: |
+          mv dist/${{ matrix.binary_name }} dist/${{ matrix.asset_name }}
+        shell: bash
+        if: runner.os != 'Windows'
+
+      - name: Rename binary for release (Windows)
+        run: |
+          ren dist\${{ matrix.binary_name }} ${{ matrix.asset_name }}
+        shell: cmd
+        if: runner.os == 'Windows'
+
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.asset_name }}
-          path: dist/${{ matrix.binary_name }}
+          path: dist/${{ matrix.asset_name }}
 
   create-release:
     needs: build
@@ -96,10 +108,10 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            artifacts/qnc-linux-x64/qnc
-            artifacts/qnc-windows-x64.exe/qnc.exe
-            artifacts/qnc-macos-x64/qnc
-            artifacts/qnc-macos-arm64/qnc
+            artifacts/qnc-linux-x64/qnc-linux-x64
+            artifacts/qnc-windows-x64.exe/qnc-windows-x64.exe
+            artifacts/qnc-macos-x64/qnc-macos-x64
+            artifacts/qnc-macos-arm64/qnc-macos-arm64
           draft: false
           prerelease: false
           generate_release_notes: true
