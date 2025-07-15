@@ -95,8 +95,6 @@ jobs:
           files: |
             artifacts/qnc-linux-x64/qnc
             artifacts/qnc-windows-x64.exe/qnc.exe
-            artifacts/qnc-macos-x64/qnc
-            artifacts/qnc-macos-arm64/qnc
           draft: false
           prerelease: false
           generate_release_notes: true
