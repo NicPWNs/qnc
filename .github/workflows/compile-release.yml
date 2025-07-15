@@ -24,6 +24,16 @@ jobs:
             arch: x64
             binary_name: qnc.exe
             asset_name: qnc-windows-x64.exe
+          - os: macos-latest
+            platform: macos
+            arch: x64
+            binary_name: qnc
+            asset_name: qnc-macos-x64
+          - os: macos-latest
+            platform: macos
+            arch: arm64
+            binary_name: qnc
+            asset_name: qnc-macos-arm64
 
     steps:
       - name: Checkout code
@@ -43,6 +53,9 @@ jobs:
         run: |
           pyinstaller --onefile --name ${{ matrix.binary_name }} qnc.py
         shell: bash
+        env:
+          # For arm64 macOS, force build for arm64
+          ARCHFLAGS: ${{ matrix.arch == 'arm64' && runner.os == 'macOS' && '--target-arch=arm64' || '' }}
 
       - name: Test binary (Linux/macOS)
         if: runner.os != 'Windows'
@@ -85,6 +98,8 @@ jobs:
           files: |
             artifacts/qnc-linux-x64/qnc
             artifacts/qnc-windows-x64.exe/qnc.exe
+            artifacts/qnc-macos-x64/qnc
+            artifacts/qnc-macos-arm64/qnc
           draft: false
           prerelease: false
           generate_release_notes: true
