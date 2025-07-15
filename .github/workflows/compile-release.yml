@@ -24,16 +24,6 @@ jobs:
             arch: x64
             binary_name: qnc.exe
             asset_name: qnc-windows-x64.exe
-          - os: macos-latest
-            platform: macos
-            arch: x64
-            binary_name: qnc
-            asset_name: qnc-macos-x64
-          - os: macos-latest
-            platform: macos
-            arch: arm64
-            binary_name: qnc
-            asset_name: qnc-macos-arm64
 
     steps:
       - name: Checkout code
