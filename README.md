@@ -5,7 +5,7 @@ A basic Netcat-like utility using [QUIC](https://datatracker.ietf.org/doc/html/r
 ## Usage
 
 ```bash
-./qnc [-l] [<host>] <port>
+./qnc [-l] [<host>] [<port>]
 ```
 
 ### Server Mode
@@ -27,7 +27,7 @@ or specify a host:
 > To connect as a client:
 
 ```bash
-./qnc <host> <port>
+./qnc <host> [<port>]
 ```
 
 ## Features

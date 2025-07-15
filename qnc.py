@@ -118,11 +118,11 @@ async def client_mode(host, port):
 
 
 def print_usage():
-    print("Usage: ./qnc [-l] [<host>] <port>")
+    print("Usage: ./qnc [-l] [<host>] [<port>]")
     print("Options:")
     print("  -l           Listen mode (server)")
-    print("  <host>       Host to connect/listen (default: 127.0.0.1 for server)")
-    print("  <port>       Port number")
+    print("  <host>       Host to connect/listen (defaults to 127.0.0.1)")
+    print("  <port>       Port number (defaults to 443)")
     print("  -h, --help   Show this help message")
 
 
