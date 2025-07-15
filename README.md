@@ -1,6 +1,6 @@
 # qnc
 
-A basic Netcat-like utility using QUIC.
+A basic Netcat-like utility using [QUIC](https://datatracker.ietf.org/doc/html/rfc9000).
 
 ## Usage
 
