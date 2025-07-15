@@ -32,6 +32,10 @@ or specify a host:
 
 ## Features
 
-- QUIC transport using [aioquic](https://github.com/aiortc/aioquic)
 - Temporary self-signed certificate generation
 - Simple stdin/stdout forwarding
+
+## References
+
+- Inspired by content and labs in [SANS SEC530](https://www.sans.org/cyber-security-courses/defensible-security-architecture-and-engineering/)
+- QUIC transport using [aioquic](https://github.com/aiortc/aioquic)
