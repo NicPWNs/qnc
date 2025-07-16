@@ -73,6 +73,7 @@ def generate_temp_cert():
     cert_file = tempfile.NamedTemporaryFile(mode="wb", delete=False, suffix=".crt")
     key_file = tempfile.NamedTemporaryFile(mode="wb", delete=False, suffix=".key")
 
+    # Convert to PEM format and write to files
     cert_file.write(cert.public_bytes(serialization.Encoding.PEM))
     key_file.write(
         private_key.private_bytes(
@@ -88,6 +89,7 @@ def generate_temp_cert():
 
 
 async def server_mode(host, port):
+    # Create QUIC configuration for server
     config = QuicConfiguration(alpn_protocols=["simple"], is_client=False)
 
     # Generate temporary certificate
@@ -107,6 +109,7 @@ async def server_mode(host, port):
 
 
 async def client_mode(host, port):
+    # Create QUIC configuration for client
     config = QuicConfiguration(alpn_protocols=["simple"], is_client=True)
     config.verify_mode = ssl.CERT_NONE  # Skip certificate verification
 
@@ -117,6 +120,7 @@ async def client_mode(host, port):
         await protocol.send_stdin()
 
 
+# Help message for usage
 def print_usage():
     print("Usage: ./qnc [-l] [<host>] [<port>]")
     print("Options:")
@@ -127,33 +131,41 @@ def print_usage():
 
 
 if __name__ == "__main__":
+    # Check for minimum arguments
     if len(sys.argv) < 2:
         print_usage()
         sys.exit(1)
 
+    # Help option
     if sys.argv[1] in ("-h", "--help"):
         print_usage()
         sys.exit(0)
 
-    # Server mode
+    # Server mode: ./qnc -l [<host>] [<port>]
     if sys.argv[1] == "-l":
-        # ./qnc -l [<host>] [<port>]
+        # All arguments supplied
         if len(sys.argv) == 4:
             host, port = sys.argv[2], int(sys.argv[3])
+        # No host supplied, default to 127.0.0.1
         elif len(sys.argv) == 3:
             host, port = "127.0.0.1", int(sys.argv[2])
+        # No host or port supplied, default to 127.0.0.1:443
         elif len(sys.argv) == 2:
             host, port = "127.0.0.1", 443
+        #  Invalid arguments
         else:
             print_usage()
             sys.exit(1)
         asyncio.run(server_mode(host, port))
+    # Client mode: ./qnc <host> [<port>]
     else:
-        # Client mode: ./qnc [<host>] [<port>]
+        # All arguments supplied
         if len(sys.argv) == 3:
             host, port = sys.argv[1], int(sys.argv[2])
+        # No port supplied, default to 443
         elif len(sys.argv) == 2:
             host, port = sys.argv[1], 443
+        # Invalid arguments
         else:
             print_usage()
             sys.exit(1)
